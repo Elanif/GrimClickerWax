@@ -8,6 +8,8 @@
 #include<fstream>
 #include<array>
 #include<sstream>
+#include<windows.h>
+#include<WinUser.h>
 
 constexpr std::size_t skill_number=6u;
 
@@ -20,6 +22,7 @@ std::vector<shardbonus> shard_vector = {};
 
 int main()
 {
+
     bool exit = false;
     std::string input_file = "shard_array.txt";
     std::ifstream shard_array(input_file);
@@ -75,9 +78,31 @@ int main()
         std::size_t i = last_updated+1;
         while (i < shard_vector.size() && shard_vector[i].total_cost  < shard_vector[last_updated].total_cost + wax_remaining)
             ++i;
-        last_updated=--i;
+        --i;
+        //focus window, check if correct resolution if not correct it with SetWindowPos function (winuser.h)
+        std::array<std::size_t, skill_number> permutation = { 3,5,0,4,2,1 };
+        for (const auto& p : permutation) {
+            //move mouse on option[p] with offset
+            std::uint16_t level_diff = shard_vector[i].s[p] - shard_vector[last_updated].s[p];
+            //click on it level_diff times
+        }
+        last_updated=i;
         std::cout <<"\n\r"<< i<<"\n\r";
         wax_stored = shard_vector[i].total_cost;
+        INPUT click[1] = {};
+        click[0].type = INPUT_MOUSE;
+        click[0].mi.dx = 1400/2560.*65536;
+        click[0].mi.dy = 700 / 1440. * 65536;
+        click[0].mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE | MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP;
+
+        SendInput(1, click, sizeof(click));
+
+
+        HWND gc_handle = FindWindowW(NULL, TEXT("GRIM CLICKER"));
+        RECT gc_rect{};
+        bool rect_gained = GetWindowRect(gc_handle, &gc_rect);
+        std::cout << (gc_rect.right - gc_rect.left) << " " << (gc_rect.bottom - gc_rect.top) << "\n\r";
+
     }
     std::cout << "Exiting\n\r";
 }
