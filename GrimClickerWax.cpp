@@ -30,47 +30,54 @@ int main()
     }
     else {
         bool end_of_file = false;
-        shardbonus s;
+        shardbonus s{};
+        shard_vector.push_back({ });
         std::string line;
         while (std::getline(shard_array, line)) {
             std::stringstream ss(line);
+            ss >> s.total_cost;
 
-            for (std::size_t i=0; i<skill_number; ++i)
+            for (std::size_t i = 0; i < skill_number; ++i)
                 ss >> s.s[i];
 
             shard_vector.push_back(s);
             if (shard_array.bad() || shard_array.eof()) break;
         }
     }
-    std::uint64_t wax_remaining=1;
-    std::uint64_t wax_stored=0;
+    std::uint64_t wax_remaining = 1;
+    std::uint64_t wax_stored = 0;
+    std::size_t last_updated = 0;
     while (!exit) {
-        std::cout << "How much wax do you have? Enter 0 to reset the stored wax, or else to exit ";
+        if (wax_stored>0) {
+            std::cout << wax_stored << " stored wax.";
+        }
+        std::cout << "How much wax do you have? Enter 0 to reset the stored wax, exit to exit ";
         std::string wax_string;
         std::cin >> wax_string;
-        std::int64_t wax_remaining_int=-1;
+        if (wax_string=="exit") break;
+        std::int64_t wax_remaining_int = -1;
         try {
             wax_remaining_int = std::stoll(wax_string);
         }
         catch (std::exception& e) {
-            exit = true;
+            continue;
         }
-        if (exit) break;
         if (wax_remaining_int < 0) {
-            exit = true;
-            break;
+            continue;
         }
+        else if (wax_remaining_int == 0) {
+            wax_remaining = 0;
+            wax_stored = 0;
+            last_updated = 0;
+            continue;
+        }
+        wax_remaining = wax_remaining_int;
+        std::size_t i = last_updated+1;
+        while (i < shard_vector.size() && shard_vector[i].total_cost  < shard_vector[last_updated].total_cost + wax_remaining)
+            ++i;
+        last_updated=--i;
+        std::cout <<"\n\r"<< i<<"\n\r";
+        wax_stored = shard_vector[i].total_cost;
     }
     std::cout << "Exiting\n\r";
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
