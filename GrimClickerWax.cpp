@@ -6,38 +6,40 @@
 #include<string>
 #include<vector>
 #include<fstream>
+#include<array>
+#include<sstream>
+
+constexpr std::size_t skill_number=6u;
 
 struct shardbonus {
-    enum class option{
-        ruby,
-        initial,
-        baseexp,
-        usurpation,
-        dmg,
-        exp
-    }s;
-
-    std::uint64_t total_cost;
-};
-
+    std::array<std::uint16_t, skill_number> s;
+    
+        std::uint64_t total_cost;
+    };
 std::vector<shardbonus> shard_vector = {};
 
 int main()
 {
     bool exit = false;
-    std::string input_file = "shard bonus cost.txt";
-    std::ifstream shard_bonus_cost(input_file);
-    if (!shard_bonus_cost.is_open()) {
+    std::string input_file = "shard_array.txt";
+    std::ifstream shard_array(input_file);
+    if (!shard_array.is_open()) {
         exit = true;
         std::cout << "Couldn't open " << input_file << "\n\r";
         return -1;
     }
     else {
         bool end_of_file = false;
-        while (!shard_bonus_cost.bad() && !shard_bonus_cost.fail() && !end_of_file && !shard_bonus_cost.eof()) {
-            std::string name;
-            shard_bonus_cost >> name;
-            std::
+        shardbonus s;
+        std::string line;
+        while (std::getline(shard_array, line)) {
+            std::stringstream ss(line);
+
+            for (std::size_t i=0; i<skill_number; ++i)
+                ss >> s.s[i];
+
+            shard_vector.push_back(s);
+            if (shard_array.bad() || shard_array.eof()) break;
         }
     }
     std::uint64_t wax_remaining=1;
